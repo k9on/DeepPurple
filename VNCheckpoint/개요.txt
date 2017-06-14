@@ -1,0 +1,49 @@
+
+        with tf.variable_scope("VN", reuse=False):
+            self.VX = tf.placeholder(tf.float32, [None, 8, 8, 31], name="X")  # 체스에서 8X8X10 이미지를 받기 위해 64
+
+            self.VW1 = tf.get_variable("W1", shape=[5, 5, 31, 128], initializer=tf.contrib.layers.xavier_initializer())
+            self.VB1 = tf.get_variable("B1", initializer=tf.random_normal([128], stddev=0.01))
+            self.VL1 = tf.nn.relu(tf.nn.conv2d(self.VX, self.VW1, strides=[1, 1, 1, 1], padding='SAME') + self.VB1)
+
+            self.VW2 = tf.get_variable("W2", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+            self.VB2 = tf.get_variable("B2", initializer=tf.random_normal([128], stddev=0.01))
+            self.VL2 = tf.nn.relu(tf.nn.conv2d(self.VL1, self.VW2, strides=[1, 1, 1, 1], padding='SAME') + self.VB2)
+
+            self.VW3 = tf.get_variable("W3", shape=[3, 3, 128, 64], initializer=tf.contrib.layers.xavier_initializer())
+            self.VB3 = tf.get_variable("B3", initializer=tf.random_normal([64], stddev=0.01))
+            self.VL3 = tf.nn.relu(tf.nn.conv2d(self.VL2, self.VW3, strides=[1, 1, 1, 1], padding='SAME') + self.VB3)
+
+            self.VW4 = tf.get_variable("W4", shape=[3, 3, 64, 64], initializer=tf.contrib.layers.xavier_initializer())
+            self.VB4 = tf.get_variable("B4", initializer=tf.random_normal([64], stddev=0.01))
+            self.VL4 = tf.nn.relu(tf.nn.conv2d(self.VL3, self.VW4, strides=[1, 1, 1, 1], padding='SAME') + self.VB4)
+
+            # self.VW5 = tf.get_variable("W5", shape=[3, 3, 64, 64], initializer=tf.contrib.layers.xavier_initializer())
+            # self.VB5 = tf.get_variable("B5", initializer=tf.random_normal([64], stddev=0.01))
+            # self.VL5 = tf.nn.relu(tf.nn.conv2d(self.VL4, self.VW5, strides=[1, 1, 1, 1], padding='SAME') + self.VB5)
+            #
+            # self.VW6 = tf.get_variable("W6", shape=[3, 3, 64, 64], initializer=tf.contrib.layers.xavier_initializer())
+            # self.VB6 = tf.get_variable("B6", initializer=tf.random_normal([64], stddev=0.01))
+            # self.VL6 = tf.nn.relu(tf.nn.conv2d(self.VL5, self.VW6, strides=[1, 1, 1, 1], padding='SAME') + self.VB6)
+
+            self.VFlatLayer = tf.reshape(self.VL4, [-1, 8* 8 * 64])
+
+            self.VFlat_W = tf.get_variable("Flat_W", shape=[4096, 4],
+                                          initializer=tf.contrib.layers.xavier_initializer())
+            self.VFlat_B = tf.get_variable("Flat_B", initializer=tf.random_normal([4], stddev=0.01))
+
+            self.Vhypothesis = tf.matmul(self.VFlatLayer, self.VFlat_W) + self.VFlat_B
+
+            self.VSMhy = tf.nn.softmax(self.Vhypothesis)
+
+            #tf.get_variable_scope().reuse_variables()  # 변수를 재사용하기 위한 방법
+            self.sess2.run(tf.global_variables_initializer())
+
+        self.VN_saves = {VN_Name + "W1": self.VW1, VN_Name + "B1": self.VB1,
+                         VN_Name + "W2": self.VW2, VN_Name + "B2": self.VB2,
+                         VN_Name + "W3": self.VW3, VN_Name + "B3": self.VB3,
+                         VN_Name + "W4": self.VW4, VN_Name + "B4": self.VB4,
+                         # VN_Name + "W5": self.VW5, VN_Name + "B5": self.VB5,
+                         # VN_Name + "W6": self.VW6, VN_Name + "B6": self.VB6,
+
+                         VN_Name + "Flat_W": self.VFlat_W, VN_Name + "Flat_B": self.VFlat_B}

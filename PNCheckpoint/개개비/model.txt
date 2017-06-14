@@ -1,0 +1,62 @@
+
+with tf.variable_scope("PN"):
+    X = tf.placeholder(tf.float32, [None, 8, 8, 35], name="X")  # 체스에서 8X8X10 이미지를 받기 위해 64
+    Y = tf.placeholder(tf.float32, [None, 4096], name="Y")
+
+    W1 = tf.get_variable("W1", shape=[5, 5, 35, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B1 = tf.get_variable("B1", initializer=tf.random_normal([128], stddev=0.01))
+    L1 = tf.nn.relu(tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='SAME') + B1)
+
+    W2 = tf.get_variable("W2", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B2 = tf.get_variable("B2", initializer=tf.random_normal([128], stddev=0.01))
+    L2 = tf.nn.relu(tf.nn.conv2d(L1, W2, strides=[1, 1, 1, 1], padding='SAME') + B2)
+
+    W3 = tf.get_variable("W3", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B3 = tf.get_variable("B3", initializer=tf.random_normal([128], stddev=0.01))
+    L3 = tf.nn.relu(tf.nn.conv2d(L2, W3, strides=[1, 1, 1, 1], padding='SAME') + B3)
+
+    W4 = tf.get_variable("W4", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B4 = tf.get_variable("B4", initializer=tf.random_normal([128], stddev=0.01))
+    L4 = tf.nn.relu(tf.nn.conv2d(L3, W4, strides=[1, 1, 1, 1], padding='SAME') + B4)
+
+    W5 = tf.get_variable("W5", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B5 = tf.get_variable("B5", initializer=tf.random_normal([128], stddev=0.01))
+    L5 = tf.nn.relu(tf.nn.conv2d(L4, W5, strides=[1, 1, 1, 1], padding='SAME') + B5)
+
+    W6 = tf.get_variable("W6", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B6 = tf.get_variable("B6", initializer=tf.random_normal([128], stddev=0.01))
+    L6 = tf.nn.relu(tf.nn.conv2d(L5, W6, strides=[1, 1, 1, 1], padding='SAME') + B6)
+
+    W7 = tf.get_variable("W7", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B7 = tf.get_variable("B7", initializer=tf.random_normal([128], stddev=0.01))
+    L7 = tf.nn.relu(tf.nn.conv2d(L6, W7, strides=[1, 1, 1, 1], padding='SAME') + B7)
+
+    W8 = tf.get_variable("W8", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B8 = tf.get_variable("B8", initializer=tf.random_normal([128], stddev=0.01))
+    L8 = tf.nn.relu(tf.nn.conv2d(L7, W8, strides=[1, 1, 1, 1], padding='SAME') + B8)
+
+    W9 = tf.get_variable("W9", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B9 = tf.get_variable("B9", initializer=tf.random_normal([128], stddev=0.01))
+    L9 = tf.nn.relu(tf.nn.conv2d(L8, W9, strides=[1, 1, 1, 1], padding='SAME') + B9)
+
+    W10 = tf.get_variable("W10", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B10 = tf.get_variable("B10", initializer=tf.random_normal([128], stddev=0.01))
+    L10 = tf.nn.relu(tf.nn.conv2d(L9, W10, strides=[1, 1, 1, 1], padding='SAME') + B10)
+
+    W11 = tf.get_variable("W11", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B11 = tf.get_variable("B11", initializer=tf.random_normal([128], stddev=0.01))
+    L11 = tf.nn.relu(tf.nn.conv2d(L10, W11, strides=[1, 1, 1, 1], padding='SAME') + B11)
+
+    W12 = tf.get_variable("W12", shape=[3, 3, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B12 = tf.get_variable("B12", initializer=tf.random_normal([128], stddev=0.01))
+    L12 = tf.nn.relu(tf.nn.conv2d(L11, W12, strides=[1, 1, 1, 1], padding='SAME') + B12)
+
+    W13 = tf.get_variable("W13", shape=[1, 1, 128, 128], initializer=tf.contrib.layers.xavier_initializer())
+    B13 = tf.get_variable("B13", initializer=tf.random_normal([128], stddev=0.01))
+    L13 = tf.nn.relu(tf.nn.conv2d(L12, W13, strides=[1, 1, 1, 1], padding='SAME') + B13)
+
+    FlatLayer = tf.reshape(L13, [-1, 8 * 8 * 128])
+    Flat_W = tf.get_variable("Flat_W", shape=[8 * 8 * 128, 4096], initializer=tf.contrib.layers.xavier_initializer())
+    Flat_B = tf.get_variable("Flat_B", initializer=tf.random_normal([4096], stddev=0.01))
+
+    hypothesis = tf.matmul(FlatLayer, Flat_W) + Flat_B
